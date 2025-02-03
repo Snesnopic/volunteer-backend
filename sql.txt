@@ -1,0 +1,91 @@
+CREATE TABLE Association (
+    association_id INT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    phone VARCHAR(50) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    website VARCHAR(255),
+    logo VARCHAR(255),
+    description TEXT NOT NULL,
+    location VARCHAR(255)
+);
+
+CREATE TABLE Skill (
+    skill_name VARCHAR(255) PRIMARY KEY
+);
+
+CREATE TABLE Interest (
+    interest_id INT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Volunteer (
+    volunteer_id INT PRIMARY KEY AUTO_INCREMENT,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(50) NOT NULL,
+    image VARCHAR(255),
+    availability INT,
+    date_of_birth DATE NOT NULL
+);
+
+CREATE TABLE VolunteerSkill (
+    volunteer_id INT NOT NULL,
+    skill_name VARCHAR(255) NOT NULL,
+    PRIMARY KEY (volunteer_id, skill_name),
+    FOREIGN KEY (volunteer_id) REFERENCES Volunteer(volunteer_id),
+    FOREIGN KEY (skill_name) REFERENCES Skill(skill_name)
+);
+
+CREATE TABLE VolunteerInterest (
+    volunteer_id INT NOT NULL,
+    interest_id INT NOT NULL,
+    PRIMARY KEY (volunteer_id, interest_id),
+    FOREIGN KEY (volunteer_id) REFERENCES Volunteer(volunteer_id),
+    FOREIGN KEY (interest_id) REFERENCES Interest(interest_id)
+);
+
+CREATE TABLE Demand (
+    demand_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    location VARCHAR(255),
+    demand_date DATETIME,
+    urgency ENUM('High', 'Medium', 'Low'),
+    expiration_date DATETIME NOT NULL,
+    association_id INT NOT NULL,
+    skill_name VARCHAR(255),
+    quantity INT,
+    FOREIGN KEY (association_id) REFERENCES Association(association_id),
+    FOREIGN KEY (skill_name) REFERENCES Skill(skill_name)
+);
+
+CREATE TABLE Event (
+    event_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    location VARCHAR(255) NOT NULL,
+    approx_location VARCHAR(255) NOT NULL,
+    event_date DATETIME NOT NULL,
+    max_capacity INT,
+    poster_image VARCHAR(255),
+    is_private BOOLEAN NOT NULL,
+    creator_id INT NOT NULL,
+    FOREIGN KEY (creator_id) REFERENCES Association(association_id)
+);
+
+CREATE TABLE EventAssociation (
+    event_id INT NOT NULL,
+    association_id INT NOT NULL,
+    PRIMARY KEY (event_id, association_id),
+    FOREIGN KEY (event_id) REFERENCES Event(event_id),
+    FOREIGN KEY (association_id) REFERENCES Association(association_id)
+);
+
+CREATE TABLE EventInterest (
+    event_id INT NOT NULL,
+    interest_id INT NOT NULL,
+    PRIMARY KEY (event_id, interest_id),
+    FOREIGN KEY (event_id) REFERENCES Event(event_id),
+    FOREIGN KEY (interest_id) REFERENCES Interest(interest_id)
+);
