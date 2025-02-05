@@ -15,9 +15,6 @@ Bun.serve({
     if (pathname === "/API/login" && method === "POST") {
       return await loginVolunteer(request);
     }
-    if (pathname === "/API/getAssociationsOfEvent" && method === "POST") {
-      return await getAssociationsOfEvent(request);
-    }
     if (pathname === "/API/getAvailableEventsForVolunteer" && method === "GET") {
       return await getAvailableEventsForVolunteer(request);
     }
@@ -26,6 +23,18 @@ Bun.serve({
     }
     if (pathname === "/API/getInterestsOfEvent" && method === "POST") {
       return await getInterestsOfEvent(request);
+    }
+    if (pathname === "/API/getInterestsOfVolunteer" && method === "GET") {
+      return await getInterestsOfVolunteer(request);
+    }
+    if (pathname === "/API/getAssociationsOfEvent" && method === "POST") {
+      return await getAssociationsOfEvent(request);
+    }
+    if (pathname === "/API/getEventsNotParticipating" && method === "GET") {
+      return await getEventsNotParticipating(request);
+    }
+    if (pathname === "/API/getEventsOfAssociationOnlyParticipation" && method === "POST") {
+      return await getEventsOfAssociationOnlyParticipation(request);
     }
     // Altri endpoint verranno aggiunti qui successivamente...
 
