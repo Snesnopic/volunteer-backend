@@ -1,23 +1,18 @@
 // routes/login.js
-import { pool } from "../db/dbConfig";
+import { pool } from "../db/dbConfig.js";
 import crypto from "crypto";
+import { sessions, getSession, setSession, updateSession, deleteSession } from "../db/session.js";
 
-// Per semplicità usiamo una mappa in memoria per gestire le sessioni
-// La chiave sarà l'email dell'utente e il valore un oggetto con informazioni di sessione.
-const sessions = new Map();
-
-/**
- * Gestisce il login del volontario.
- * Scenario I: Se non viene fornito il confirmationCode, vengono verificate le credenziali.
- * Scenario II: Se viene fornito il confirmationCode, viene validato.
- */
+// Mappa per gestire le sessioni in memoria (già gestita in session.js, ma l'importazione consente di accedervi)
+  
 export async function loginVolunteer(request) {
   try {
     const body = await request.json();
     const { userEmail, userPassword, confirmationCode } = body;
 
     // Se l'utente risulta già loggato, restituisci l'errore
-    if (userEmail && sessions.has(userEmail) && sessions.get(userEmail).loggedIn) {
+    const currentSession = getSession(userEmail);
+    if (userEmail && currentSession && currentSession.loggedIn) {
       return new Response(
         JSON.stringify({ state: 5, message: "Already logged in" }),
         { status: 400 }
@@ -26,30 +21,28 @@ export async function loginVolunteer(request) {
 
     // Scenario II: Login tramite conferma (confirmationCode inviato via email)
     if (confirmationCode) {
-      if (!userEmail || !sessions.has(userEmail)) {
+      if (!userEmail || !currentSession) {
         return new Response(
           JSON.stringify({ state: 7, message: "Missing confirmation code" }),
           { status: 400 }
         );
       }
-      const session = sessions.get(userEmail);
-      if (session.confirmationCode !== confirmationCode) {
+      if (currentSession.confirmationCode !== confirmationCode) {
         return new Response(
           JSON.stringify({ state: 10, message: "Invalid confirmation code, please try again" }),
           { status: 400 }
         );
       }
       // Verifica che il codice non sia scaduto (scadenza di 120 secondi)
-      if (Date.now() - session.timestamp > 120000) {
-        sessions.delete(userEmail);
+      if (Date.now() - currentSession.timestamp > 120000) {
+        deleteSession(userEmail);
         return new Response(
           JSON.stringify({ state: 11, message: "Confirmation code expired" }),
           { status: 400 }
         );
       }
       // Conferma effettuata: segna l'utente come loggato
-      session.loggedIn = true;
-      sessions.set(userEmail, session);
+      updateSession(userEmail, { loggedIn: true });
       return new Response(
         JSON.stringify({ state: -1, message: "Login successful as volunteer" }),
         { status: 200 }
@@ -74,7 +67,7 @@ export async function loginVolunteer(request) {
       }
       const volunteer = rows[0];
 
-      // Calcola l'hash della password fornita utilizzando SHA256
+      // Calcola l'hash della password fornita
       const hash = crypto.createHash("sha256").update(userPassword).digest("hex");
       if (hash !== volunteer.password) {
         return new Response(
@@ -83,18 +76,17 @@ export async function loginVolunteer(request) {
         );
       }
 
-      // Genera un codice di conferma (ad esempio un numero a 6 cifre)
+      // Genera un codice di conferma (es. numero a 6 cifre)
       const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-      // Registra o aggiorna la sessione per questo utente
-      sessions.set(userEmail, {
+      // Registra o aggiorna la sessione per questo utente, includendo volunteerId
+      setSession(userEmail, {
         confirmationCode: generatedCode,
-        timestamp: Date.now(),
         loggedIn: false,
+        volunteerId: volunteer.volunteer_id,
       });
 
-      // In un'applicazione reale, qui si invierebbe l'email al volontario.
-      // Per scopi di debug stampiamo il codice sulla console.
+      // In un'app reale invieresti l'email; qui stampiamo il codice in console
       console.log(`Confirmation code for ${userEmail}: ${generatedCode}`);
 
       return new Response(
