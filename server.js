@@ -1,8 +1,23 @@
 // server.js
 import { registerVolunteer } from "./routes/registerVolunteer.js";
 import { loginVolunteer } from "./routes/login.js";
-import { getAssociationsOfEvent } from "./routes/getAssociationsOfEvent.js";
 import { getAvailableEventsForVolunteer } from "./routes/getAvailableEventsForVolunteer.js";
+import { getAssociationsOfEvent } from "./routes/getAssociationsOfEvent.js";
+import { getInterestsOfEvent } from "./routes/getInterestsOfEvent.js";
+import { getInterestsOfVolunteer } from "./routes/getInterestsOfVolunteer.js";
+import { getEventsNotParticipating } from "./routes/getEventsNotParticipating.js";
+import { getEventsOfAssociationOnlyParticipation } from "./routes/getEventsOfAssociationOnlyParticipation.js";
+import { getInterestList } from "./routes/getInterestList.js";
+import { getNumberOfParticipants } from "./routes/getNumberOfParticipants.js";
+import { getParticipantsOfEvent } from "./routes/getParticipantsOfEvent.js";
+import { logout } from "./routes/logout.js";
+import { joinEvent } from "./routes/joinEvent.js";
+import { removeVolunteerFromEvent } from "./routes/removeVolunteerFromEvent.js";
+import { publishEvent } from "./routes/publishEvent.js";
+import { updateAssociationProfile } from "./routes/updateAssociationProfile.js";
+import { updateEvent } from "./routes/updateEvent.js";
+import { getVolunteerEvents } from "./routes/getVolunteerEvents.js";
+
 
 Bun.serve({
   port: 3000,
@@ -36,8 +51,36 @@ Bun.serve({
     if (pathname === "/API/getEventsOfAssociationOnlyParticipation" && method === "POST") {
       return await getEventsOfAssociationOnlyParticipation(request);
     }
-    // Altri endpoint verranno aggiunti qui successivamente...
-
+    if (pathname === "/API/getInterestList" && method === "GET") {
+      return await getInterestList(request);
+    }
+    if (pathname === "/API/getNumberOfParticipants" && method === "POST") {
+      return await getNumberOfParticipants(request);
+    }
+    if (pathname === "/API/getParticipantsOfEvent" && method === "POST") {
+      return await getParticipantsOfEvent(request);
+    }
+    if (pathname === "/API/logout" && method === "GET") {
+      return await logout(request);
+    }
+    if (pathname === "/API/joinEvent" && method === "POST") {
+      return await joinEvent(request);
+    }
+    if (pathname === "/API/removeVolunteerFromEvent" && method === "POST") {
+      return await removeVolunteerFromEvent(request);
+    }
+    if (pathname === "/API/publishEvent" && method === "POST") {
+      return await publishEvent(request);
+    }
+    if (pathname === "/API/updateAssociationProfile" && method === "POST") {
+      return await updateAssociationProfile(request);
+    }
+    if (pathname === "/API/updateEvent" && method === "POST") {
+      return await updateEvent(request);
+    }
+    if (pathname === "/API/getVolunteerEvents" && method === "GET") {
+      return await getVolunteerEvents(request);
+    }
     return new Response("Not Found", { status: 404 });
   },
 });
