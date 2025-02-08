@@ -17,6 +17,8 @@ import { publishEvent } from "./routes/publishEvent.js";
 import { updateAssociationProfile } from "./routes/updateAssociationProfile.js";
 import { updateEvent } from "./routes/updateEvent.js";
 import { getVolunteerEvents } from "./routes/getVolunteerEvents.js";
+import { fetchVolunteerDetails } from "./routes/fetchVolunteerDetails.js";
+import { updateVolunteerProfile } from "./routes/updateVolunteerProfile.js";
 
 
 Bun.serve({
@@ -80,6 +82,12 @@ Bun.serve({
     }
     if (pathname === "/API/getVolunteerEvents" && method === "GET") {
       return await getVolunteerEvents(request);
+    }
+    if (pathname === "/API/fetchVolunteerDetails" && method === "POST") {
+      return await fetchVolunteerDetails(request);
+    }
+    if (pathname === "/API/updateVolunteerProfile" && method === "POST") {
+      return await updateVolunteerProfile(request);
     }
     return new Response("Not Found", { status: 404 });
   },
